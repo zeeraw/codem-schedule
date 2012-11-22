@@ -1,16 +1,23 @@
 module ScheduleStrategies
   class Weighted
     def hosts
-      sorted = ScheduleStrategies::Simple.new.hosts
-
-      # if all hosts have the same weight, don't change the order, and return the hosts
-      if sorted.map(&:weight).uniq.size == 1
-        return sorted
+      Host.with_available_slots.sort do |a,b|
+        capacity(b) <=> capacity(a)
       end
+    end
 
-      # sort hosts by relative weight: (weight of the host / available slots)
-      sorted.sort do |a,b|
-        b.weight.to_i / b.available_slots <=> a.weight.to_i / a.available_slots
+    def capacity(host)
+      return host.available_slots if host.weight.blank?
+
+      jobs = host.jobs.scheduled + host.jobs.accepted + host.jobs.processing
+      job_load = jobs.inject(0)  { |sum, job| sum + job.preset.weight.to_i }
+
+      host.weight - job_load
+    end
+
+    def self.jobs(limit)
+      Job.scheduled.unlocked.order("priority DESC, created_at ASC").limit(limit).sort do |a,b| 
+        b.preset.try(:weight) <=> a.preset.try(:weight)
       end
     end
   end
