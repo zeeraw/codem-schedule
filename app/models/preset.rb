@@ -10,8 +10,4 @@ class Preset < ActiveRecord::Base
            :parameters => attributes['parameters'],
            :weight => attributes['weight'])
   end
-
-  def name
-    [ attributes['name'], attributes['weight'] ].compact.join(' - ')
-  end
 end
