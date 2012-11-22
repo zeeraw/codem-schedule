@@ -88,6 +88,7 @@ class Api::PresetsController < Api::ApiController
   # <tt>id</tt>:: Id of the preset to update
   # <tt>name</tt>:: Name of the preset
   # <tt>parameters</tt>:: Parameters of the preset
+  # <tt>weight</tt>:: Weight of the preset
   #
   # === Example
   #
@@ -97,11 +98,12 @@ class Api::PresetsController < Api::ApiController
     if params[:preset]
       params[:name] = params[:preset][:name]
       params[:parameters] = params[:preset][:parameters]
+      params[:weight]     = params[:preset][:weight]
     end
 
     preset = Preset.find(params[:id])
 
-    if preset.update_attributes(:name => params[:name], :parameters => params[:parameters])
+    if preset.update_attributes(:name => params[:name], :parameters => params[:parameters], :weight => params[:weight])
       respond_with preset, :location => api_preset_url(preset) do |format|
         format.html { redirect_to presets_path }
       end

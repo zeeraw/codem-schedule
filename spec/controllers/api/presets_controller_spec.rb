@@ -74,7 +74,7 @@ describe Api::PresetsController do
     end
     
     def do_put(format)
-      put 'update', :id => @preset.id, :name => 'name', :parameters => 'params', :format => format
+      put 'update', :id => @preset.id, :name => 'name', :parameters => 'params', :weight => '10', :format => format
       @preset.reload
     end
     
@@ -82,6 +82,7 @@ describe Api::PresetsController do
       do_put(:json)
       @preset.name.should == 'name'
       @preset.parameters.should == 'params'
+      @preset.weight.should == 10
     end
 
     it "should update a preset as XML" do
