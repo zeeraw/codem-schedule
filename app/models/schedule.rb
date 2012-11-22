@@ -25,7 +25,7 @@ class Schedule
     end
 
     def to_be_scheduled_jobs
-      Job.scheduled.unlocked.order("priority DESC, created_at ASC").limit(get_available_slots)
+      schedule_strategy.jobs(get_available_slots)
     end
     
     def to_be_updated_jobs

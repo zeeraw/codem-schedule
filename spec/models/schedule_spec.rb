@@ -19,6 +19,7 @@ describe Schedule do
       Schedule.stub!(:get_available_slots).and_return 10
 
       Schedule.stub!(:to_be_updated_jobs).and_return []
+      Schedule.stub!(:to_be_scheduled_jobs).and_return [@job]
 
       @host = FactoryGirl.create(:host)
 
