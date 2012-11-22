@@ -105,6 +105,7 @@ class Api::HostsController < Api::ApiController
   # <tt>id</tt>:: Id of the host to update
   # <tt>name</tt>:: Name of the host
   # <tt>url</tt>:: Url of the host
+  # <tt>weight</tt>:: Weight of the host
   #
   # === Example
   #
@@ -112,13 +113,14 @@ class Api::HostsController < Api::ApiController
   #   {} # HTTP Status: 200 OK
   def update
     if params[:host]
-      params[:name] = params[:host][:name]
-      params[:url]  = params[:host][:url]
+      params[:name]   = params[:host][:name]
+      params[:url]    = params[:host][:url]
+      params[:weight] = params[:host][:weight]
     end
 
     host = Host.find(params[:id])
 
-    if host.update_attributes(:name => params[:name], :url => params[:url])
+    if host.update_attributes(:name => params[:name], :url => params[:url], :weight => params[:weight])
       host.update_status
       respond_with host, :location => api_host_url(host) do |format|
         format.html { redirect_to hosts_path }
