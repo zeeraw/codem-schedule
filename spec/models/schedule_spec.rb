@@ -24,7 +24,7 @@ describe Schedule do
       @host = FactoryGirl.create(:host)
 
       @strategy = double("Schedule strategy", :hosts => [@host])
-      Schedule.stub!(:schedule_strategy).and_return double("Factory", new: @strategy)
+      Schedule.stub!(:schedule_strategy).and_return @strategy
 
       Transcoder.stub!(:schedule).and_return 'attrs'
     end
@@ -227,5 +227,45 @@ describe Schedule do
     Schedule.stub!(:get_available_slots).and_return 10
 
     Schedule.to_be_scheduled_jobs.should == [ @prio, @no_prio_1, @no_prio_2 ]
+  end
+
+  it "should schedule the job at the first host that's responding" do
+    [ Host, Job ].map(&:destroy_all)
+
+    host1 = FactoryGirl.create(:host, name: "Host 1")
+    host2 = FactoryGirl.create(:host, name: "Host 2")
+    host3 = FactoryGirl.create(:host, name: "Host 3")
+
+    job   = FactoryGirl.create(:job, preset: FactoryGirl.create(:preset))
+
+    Schedule.stub!(:hosts).and_return [ host1, host2, host3 ]
+    Schedule.stub!(:jobs).and_return [ job ]
+
+    Transcoder.stub!(:schedule).with(job: job, host: host1).and_return false
+    Transcoder.stub!(:schedule).with(job: job, host: host2).and_return false
+
+    Transcoder.should_receive(:schedule).with(job: job, host: host3)
+
+    Schedule.run!
+  end
+
+  it "should survive a hosts timeout" do
+    [ Host, Job ].map(&:destroy_all)
+
+    host1 = FactoryGirl.create(:host, name: "Host 1", url: 'host1')
+    host2 = FactoryGirl.create(:host, name: "Host 2", url: 'host2')
+
+    job   = FactoryGirl.create(:job, preset: FactoryGirl.create(:preset))
+
+    Schedule.stub!(:hosts).and_return [ host1, host2 ]
+    Schedule.stub!(:jobs).and_return [ job ]
+
+    stub_request(:post, "host1/jobs").to_timeout
+    stub_request(:post, "host2/jobs").to_return(body: {job: job}.to_json, status: 200)
+
+    Schedule.run!
+
+    job.host.should == host2
+
   end
 end

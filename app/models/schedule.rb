@@ -24,8 +24,16 @@ class Schedule
       count
     end
 
-    def to_be_scheduled_jobs
+    def hosts
+      schedule_strategy.hosts
+    end
+
+    def jobs
       schedule_strategy.jobs(get_available_slots)
+    end
+
+    def to_be_scheduled_jobs
+      jobs
     end
     
     def to_be_updated_jobs
@@ -76,20 +84,20 @@ class Schedule
     end
 
     def schedule_job(job)
-      strategy = schedule_strategy.new
 
       begin
         Retryable.attempt(tries: retry_attempts) do                         # Retry this block `retry_attempts' times
-          strategy.hosts.each do |host|                                           # for each host in the current scheduling strategy,
+          hosts.each do |host|                                                    # for each host
             if attrs = Transcoder.schedule(:host => host, :job => job)                # try to schedule the host, and if the job was scheduled
               job.enter(Job::Accepted, attrs)                                             # enter accepted state,
               return                                                                      # and break
             end
           end
-          raise RetrySchedulingError                                              # or raise a RetryScheduling error to retry
+          raise RetrySchedulingError                                              # or raise a retry error
         end
-      rescue RetrySchedulingError => e                                      # rescue after `retry_attempts' retries to continue normal flow
+      rescue RetrySchedulingError => e                            # rescue after `retry_attempts' to resume normal flow
       end
+
     end
   end
 end
