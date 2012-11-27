@@ -244,7 +244,7 @@ describe Schedule do
     Transcoder.stub!(:schedule).with(job: job, host: host1).and_return false
     Transcoder.stub!(:schedule).with(job: job, host: host2).and_return false
 
-    Transcoder.should_receive(:schedule).with(job: job, host: host3)
+    Transcoder.should_receive(:schedule).with(job: job, host: host3).once
 
     Schedule.run!
   end
