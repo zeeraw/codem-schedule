@@ -30,7 +30,7 @@ describe ScheduleStrategies::Weighted do
     @job5 = double("Job 5", preset: @preset_e)
     @job6 = double("Job 6", preset: @preset_f)
 
-    @strategy = ScheduleStrategies::Weighted.new
+    @strategy = ScheduleStrategies::Weighted
 
     Host.stub!(:with_available_slots).and_return [ @host2, @host1 ]
   end
