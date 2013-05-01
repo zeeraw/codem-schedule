@@ -2,12 +2,16 @@ source 'http://rubygems.org'
 
 gem 'rails'
 
-gem 'sqlite3'
+gem 'mysql2'
 gem 'jquery-rails'
 gem 'rest-client'
 gem 'will_paginate'
 gem 'simple_form'
 gem 'chronic'
+
+group :production do
+  gem 'unicorn'
+end
 
 group :development, :test do
   gem 'rspec-rails'
@@ -16,10 +20,12 @@ end
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
+  gem 'less-rails'
   gem 'sass-rails'
   gem 'coffee-rails'
   gem 'uglifier'
   gem 'twitter-bootstrap-rails'
+  gem 'therubyracer'
 end
 
 group :test do
