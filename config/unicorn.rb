@@ -17,10 +17,10 @@ socket_path = ENV["UNICORN_SOCKET"] || "#{PROJECT_ROOT}/tmp/sockets/unicorn.sock
 listen socket_path, :backlog => 256
 
 # Preload our app for more speed
-preload_app true
+preload_app false
 
 # Set timeout which the old Unicorn workers will die.
-timeout 15
+timeout 45
 
 # Setup the path for unicorn pid-files.
 pid_path = ENV["UNICORN_PID"] || "#{PROJECT_ROOT}/tmp/pids/unicorn.pid"
@@ -35,22 +35,22 @@ stdout_path ENV["UNICORN_STDOUT"] || "#{PROJECT_ROOT}/tmp/log/unicorn.stdout.log
 
 # Fork the thread and start Unicorn in sub-processes
 before_fork do |server, worker|
-  if defined?(ActiveRecord::Base)
-    ActiveRecord::Base.connection.disconnect!
-  end
+  ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord::Base)
 
-  old_pid_path = pid_path + ".old"
-  if File.exists?(old_pid_path) && server.pid != old_pid_path
+  old_pid = "#{server.config[:pid]}.oldbin"
+  if old_pid != server.pid
     begin
-      Process.kill("QUIT", File.read(old_pid_path).to_i)
+      sig = (worker.nr + 1) >= server.worker_processes ? :QUIT : :TTOU
+      Process.kill(sig, File.read(old_pid).to_i)
     rescue Errno::ENOENT, Errno::ESRCH
-      `echo failed to kill unicorn on pid: #{old_pid_path}`
+      `echo failed to kill unicorn on pid: #{old_pid}`
     end
   end
+
 end
 
 after_fork do |server, worker|
-  if defined?(ActiveRecord::Base)
-    ActiveRecord::Base.establish_connection
-  end
+  ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
+  child_pid = server.config[:pid].sub('.pid', ".#{worker.nr}.pid")
+  `echo #{Process.pid} > #{child_pid}`
 end
