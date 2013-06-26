@@ -20,7 +20,7 @@ class Transcoder
       }
 
       opts['thumbnail_destination_file'] = job.thumbnail_destination_file if job.thumbnail_destination_file
-      opts['thumbnail_options']          = job.thumbnail_options if job.thumbnail_options
+      opts['thumbnail_options']          = job.thumbnail_preset.parameters if job.thumbnail_preset.try(:parameters)
 
       opts.to_json
     end
