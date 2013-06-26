@@ -10,16 +10,21 @@ class Transcoder
         false
       end
     end
-    
+
     def job_to_json(job)
-      {
+      opts = {
         'source_file' => job.source_file,
         'destination_file' => job.destination_file,
         'encoder_options' => job.preset.parameters,
         'callback_urls' => [ job.callback_url ]
-      }.to_json
+      }
+
+      opts['thumbnail_destination_file'] = job.thumbnail_destination_file if job.thumbnail_destination_file
+      opts['thumbnail_options']          = job.thumbnail_preset.parameters if job.thumbnail_preset.try(:parameters)
+
+      opts.to_json
     end
-    
+
     def host_status(host)
       get "#{host.url}/jobs"
     end
@@ -29,15 +34,15 @@ class Transcoder
         get "#{job.host.url}/jobs/#{job.remote_job_id}"
       end
     end
-    
+
     def post(url, *attrs)
       call_transcoder(:post, url, *attrs)
     end
-        
+
     def get(url, *attrs)
       call_transcoder(:get, url, *attrs)
     end
-    
+
     private
       def call_transcoder(method, url, *attrs)
         begin
