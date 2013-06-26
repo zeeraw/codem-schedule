@@ -7,10 +7,11 @@ class Job < ActiveRecord::Base
   OnHold      = 'on_hold'
   Success     = 'success'
   Failed      = 'failed'
-  
+
   belongs_to :preset
+  belongs_to :thumbnail_preset, foreign_key: :thumbnail_preset_id, class_name: "Preset"
   belongs_to :host
-  
+
   has_many :state_changes, :order => 'created_at ASC', :dependent => :destroy
   has_many :notifications, :dependent => :destroy
 
@@ -26,12 +27,12 @@ class Job < ActiveRecord::Base
   scope :unlocked,    :conditions => { :locked => false }
 
   scope :recent,      :include => [:host, :preset]
-  
+
   scope :unfinished,  lambda { where("state in (?)", [Accepted, Processing, OnHold]) }
   scope :need_update, lambda { where("state in (?)", [Accepted, Processing, OnHold]) }
-  
+
   validates :source_file, :destination_file, :preset_id, :presence => true
-  
+
   class << self
     def from_api(options, opts)
       options = options[:job] if options[:job]
@@ -44,7 +45,9 @@ class Job < ActiveRecord::Base
 
       job = new(:source_file => options['input'],
                 :destination_file => options['output'],
+                :thumbnail_destination_file => options['thumb_output'],
                 :preset => Preset.find_by_name(options['preset']),
+                :thumbnail_preset => Preset.find_by_name(options['thumb_preset']),
                 :notifications => Notification.from_api(options[:notify]),
                 :arguments => args)
 
@@ -84,7 +87,7 @@ class Job < ActiveRecord::Base
   def finished?
     state == Success || state == Failed
   end
-  
+
   def unfinished?
     state == Scheduled || state == Accepted || state == Processing || state == OnHold
   end
