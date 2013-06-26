@@ -17,12 +17,15 @@
   <td class="preset" title="<%= job.preset.try(:parameters) %>">
     <%= job.preset.try(:name) %>
   </td>
+  <td class="thumb-preset" title="<%= job.thumbnail_preset.try(:parameters) %>">
+    <%= job.thumbnail_preset.try(:name) %>
+  </td>
   <td class="host" title="<%= strip_tags host_name(job.host) if job.host %>">
     <%= job.host.try(:name) %>
   </td>
   <td class="state <%= job.state %>" title="<%= job.message %>">
     <%= state_label job.state %>
-    
+
 		<%- if job.state == Job::Processing -%>
       <div class="progress progress-striped active">
         <div class="bar" style="width:<%= progress_as_percentage job.progress %>%">

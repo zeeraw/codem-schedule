@@ -1,9 +1,9 @@
 <% title 'New job' %>
 
 <%= form_tag api_jobs_path, class: 'form-horizontal' do %>
-	
+
 	<%#= error_messages_for @job %>
-	
+
 	<fieldset>
     <legend>Create a new job</legend>
 
@@ -22,9 +22,23 @@
     </div>
 
     <div class="control-group">
+      <%= label_tag :thumb_output, "Thumb Output", class: 'control-label' %>
+      <div class="controls">
+        <%= text_field_tag :thumb_output, @job.try(:thumbnail_destination_file), class: 'input-xlarge' %>
+      </div>
+    </div>
+
+    <div class="control-group">
       <%= label_tag :preset, nil, class: 'control-label' %>
       <div class="controls">
         <%= select_tag :preset, options_for_select(Preset.all.map { |p| [p.name] }, @job.try(:preset).try(:name)), class: 'input-xlarge' %>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <%= label_tag :thumb_preset, "Thumb Preset", class: 'control-label' %>
+      <div class="controls">
+        <%= select_tag :thumb_preset, options_for_select(Preset.all.map { |p| [p.name] }, @job.try(:thumbnail_preset).try(:name)), class: 'input-xlarge' %>
       </div>
     </div>
 
@@ -36,11 +50,11 @@
     </div>
 
   </fieldset>
-  
-  <div class="form-actions"> 
-    <%= submit_tag 'Create Job', class: 'btn btn-primary' %> or 
+
+  <div class="form-actions">
+    <%= submit_tag 'Create Job', class: 'btn btn-primary' %> or
     <%= link_to 'Cancel', jobs_path %>
   </div>
-  
+
 
 <% end %>
