@@ -46,10 +46,12 @@ class Transcoder
     private
       def call_transcoder(method, url, *attrs)
         begin
-          attrs << { :content_type => :json, :accept => :json, :timeout => 0.05 }
-          response = RestClient.send(method, url, *attrs)
-          JSON::parse response
-        rescue Errno::ECONNREFUSED, SocketError, Errno::ENETUNREACH, Errno::EHOSTUNREACH, RestClient::Exception, JSON::ParserError, Errno::ETIMEDOUT
+          Timeout::timeout(5) do
+            attrs << { :content_type => :json, :accept => :json }
+            response = RestClient.send(method, url, *attrs)
+            JSON::parse response
+          end
+        rescue Errno::ECONNREFUSED, SocketError, Errno::ENETUNREACH, Errno::EHOSTUNREACH, RestClient::Exception, JSON::ParserError, Errno::ETIMEDOUT, Timeout::Error
           false
         end
       end
