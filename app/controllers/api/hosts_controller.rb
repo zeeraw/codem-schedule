@@ -26,7 +26,7 @@ class Api::HostsController < Api::ApiController
     hosts.map(&:update_status)
     respond_with hosts
   end
-  
+
   # == Creates a host
   # Creates a host using the specified parameters, all are required. If the request was valid,
   # the created host is returned. If the request could not be completed, a list of errors will be returned.
@@ -39,7 +39,7 @@ class Api::HostsController < Api::ApiController
   # <tt>success</tt>:: <tt>201 created</tt>
   # <tt>failed</tt>::  <tt>406 Unprocessable Entity</tt>
   #
-  # === Example 
+  # === Example
   #   $ curl -d 'name=transcoder&url=http://transcoder.com' http://localhost:3000/api/hosts
   #
   #   {
@@ -60,18 +60,20 @@ class Api::HostsController < Api::ApiController
     if host.valid?
       respond_with host, :location => api_host_url(host) do |format|
         format.html { redirect_to hosts_path, :notice => t('flash.hosts.created') }
+        format.json { @host = host; render json: { status: 'OK', message: t('flash.hosts.created') } }
       end
     else
       respond_with host do |format|
         format.html { @host = host; render "/hosts/new"}
+        format.json { @host = host; render json: { status: 'FAILED', message: 'Could not create host.' } }
       end
     end
   end
-  
+
   # == Shows a specific host
   #
   # The host will have its status updated to provide an up-to-date view of the slots.
-  # 
+  #
   # === Parameters
   # <tt>id</tt>:: The id of the host to show
   #
@@ -94,7 +96,7 @@ class Api::HostsController < Api::ApiController
     host.update_status
     respond_with host
   end
-  
+
   # == Updates a host
   #
   # === Paramdeters
@@ -125,7 +127,7 @@ class Api::HostsController < Api::ApiController
       end
     end
   end
-  
+
   # == Deletes a host
   #
   # === Parameters
