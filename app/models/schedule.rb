@@ -50,15 +50,17 @@ class Schedule
 
     private
       def update_job(job)
+        if (job.state == Job::OnHold) && (job.state_changes.order('created_at ASC').first.created_at < 10.minutes.ago)
+          job.enter(Job::Scheduled)
+        end
+
         if attrs = Transcoder.job_status(job)
           if attrs['status'] == Job::Processing
             update_progress(job, attrs)
           elsif job.state != attrs['status']
             job.enter(attrs['status'], attrs)
           end
-        elsif (job.state == Job::OnHold) && (job.state_changes.order('created_at ASC').first.created_at < 10.minutes.ago)
-          job.enter(Job::Scheduled)
-        elsif job.state != Job::OnHold
+        else
           job.enter(Job::OnHold)
         end
 
