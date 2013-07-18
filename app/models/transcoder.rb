@@ -46,7 +46,7 @@ class Transcoder
     private
       def call_transcoder(method, url, *attrs)
         begin
-          Timeout::timeout(5) do
+          Timeout::timeout(10) do
             attrs << { :content_type => :json, :accept => :json }
             response = RestClient.send(method, url, *attrs)
             JSON::parse response
