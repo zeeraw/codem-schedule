@@ -56,7 +56,7 @@ class Schedule
           elsif job.state != attrs['status']
             job.enter(attrs['status'], attrs)
           end
-        elsif (job.state == Job::OnHold) && (5.minutes.ago > job.updated_at)
+        elsif (job.state == Job::OnHold) && (job.state_changes.order('created_at ASC').first.created_at < 10.minutes.ago)
           job.enter(Job::Scheduled)
         elsif job.state != Job::OnHold
           job.enter(Job::OnHold)
