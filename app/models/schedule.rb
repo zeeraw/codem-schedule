@@ -53,6 +53,7 @@ class Schedule
         if (job.state == Job::OnHold) && (job.state_changes.order('created_at ASC').first.created_at < 10.minutes.ago)
           job.update_attributes host_id: nil, transcoding_started_at: nil, remote_job_id: nil
           job.enter(Job::Scheduled)
+          return job
         end
 
         if attrs = Transcoder.job_status(job)
@@ -65,7 +66,7 @@ class Schedule
           job.enter(Job::OnHold)
         end
 
-        job
+        return job
       end
 
       def schedule_job(job)
