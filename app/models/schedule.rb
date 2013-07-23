@@ -51,6 +51,7 @@ class Schedule
     private
       def update_job(job)
         if (job.state == Job::OnHold) && (job.state_changes.order('created_at ASC').first.created_at < 10.minutes.ago)
+          job.host = nil
           job.enter(Job::Scheduled)
         end
 
