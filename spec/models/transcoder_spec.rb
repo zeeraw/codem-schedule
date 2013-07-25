@@ -88,7 +88,7 @@ describe Transcoder do
     end
 
     it "should make the correct call" do
-      RestClient.should_receive(:post).with('url', {'foo' => 'bar'}, {:content_type => :json, :accept => :json)
+      RestClient.should_receive(:post).with('url', {'foo' => 'bar'}, {:content_type => :json, :accept => :json})
       do_post.should == {'foo' => 'bar'}
     end
 
@@ -110,7 +110,7 @@ describe Transcoder do
     end
 
     it "should make the correct call" do
-      RestClient.should_receive(:get).with('url', {'foo' => 'bar'}, {:content_type => :json, :accept => :json)
+      RestClient.should_receive(:get).with('url', {'foo' => 'bar'}, {:content_type => :json, :accept => :json})
       do_get
     end
 
