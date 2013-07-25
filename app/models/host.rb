@@ -19,8 +19,8 @@ class Host < ActiveRecord::Base
   end
 
   def update_status
-    return self if status_updated_at && status_updated_at > 10.seconds.ago
-    return self if not available && last_available_at && last_available_at < 15.minutes.ago
+    return self if (status_updated_at && status_updated_at > 10.seconds.ago)
+    return self if (last_available_at && last_available_at < 15.minutes.ago) unless available
 
     current_time = Time.current
     self.available = false
