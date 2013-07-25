@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130626141719) do
+ActiveRecord::Schema.define(:version => 20130725091231) do
 
   create_table "deliveries", :force => true do |t|
     t.integer  "notification_id", :null => false
@@ -34,8 +34,10 @@ ActiveRecord::Schema.define(:version => 20130626141719) do
     t.integer  "total_slots",       :default => 0
     t.integer  "available_slots",   :default => 0
     t.datetime "status_updated_at"
+    t.datetime "last_available_at"
   end
 
+  add_index "hosts", ["last_available_at"], :name => "index_hosts_on_last_available_at"
   add_index "hosts", ["name"], :name => "index_hosts_on_name"
 
   create_table "jobs", :force => true do |t|
